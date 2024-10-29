@@ -1,10 +1,12 @@
+from src.repositories.clients import ClientsRepository
+
 class DBManager:
     def __init__(self, session_factory):
         self.session_factory = session_factory
 
     async def __aenter__(self):
         self.session = self.session_factory()
-
+        self.clients = ClientsRepository(self.session)
         return self
     
     async def __aexit__(self, *args):
