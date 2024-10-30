@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 
 from src.db import Base
@@ -14,6 +14,9 @@ class ClientsModel(Base):
     gender: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
-
-    # Хранить медиафайлы в SQL базах данных не очень хорошо, насколько знаю
     avatar_path: Mapped[str]
+
+    # Связь с таблицей LikesModel
+    likes_given = relationship("LikesModel", foreign_keys="[LikesModel.client_id]", back_populates="client")
+    likes_received = relationship("LikesModel", foreign_keys="[LikesModel.liked_client_id]", back_populates="liked_client")
+

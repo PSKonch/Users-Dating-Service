@@ -1,5 +1,6 @@
-from sqlalchemy import func, select, update
+from sqlalchemy import and_, func, select, update
 
+from src.models.likes import LikesModel
 from src.repositories.base import BaseRepository
 from src.models.clients import ClientsModel
 from src.repositories.mappers.clients import ClientsDataMapper
@@ -41,3 +42,33 @@ class ClientsRepository(BaseRepository):
 
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(client) for client in result.scalars().all()]
+    
+    async def get_user_email(self, user_id: int) -> str:
+        stmt = select(ClientsModel.email).filter(ClientsModel.id == user_id)
+        result = await self.session.execute(stmt)
+        return result.scalar()
+
+    async def check_existing_like(self, user_id: int, liked_user_id: int) -> bool:
+        stmt = select(LikesModel).filter(
+            and_(
+                LikesModel.client_id == user_id,
+                LikesModel.liked_client_id == liked_user_id
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar() is not None
+
+    async def add_like(self, user_id: int, liked_user_id: int):
+        new_like = LikesModel(client_id=user_id, liked_client_id=liked_user_id)
+        self.session.add(new_like)
+        await self.session.commit()
+
+    async def check_mutual_like(self, user_id: int, liked_user_id: int) -> bool:
+        stmt = select(LikesModel).filter(
+            and_(
+                LikesModel.client_id == liked_user_id,
+                LikesModel.liked_client_id == user_id
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar() is not None
