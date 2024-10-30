@@ -16,6 +16,11 @@ class Settings(BaseSettings):
 
     AVATAR_SAVE_PATH: str = "src/static/images" #  Не имеет смысл отправлять путь в переменные окружения
 
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASSWORD: str
+
     @property
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

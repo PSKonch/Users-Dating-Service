@@ -1,3 +1,4 @@
+from enum import Enum
 from fastapi import APIRouter, Depends, Form, File, UploadFile
 from pydantic import EmailStr
 from src.utils.dependencies.db import DBDependency
@@ -6,24 +7,32 @@ from src.services.clients import ClientService
 
 client_service = ClientService()
 
-router = APIRouter(prefix="/clients", tags=["Пользователи"])
+router = APIRouter(prefix="/clients", tags=["Профиль пользователя"])
+
+class Gender(str, Enum):
+    MALE = "M"
+    FEMALE = "F"
 
 @router.post("/create", summary="Регистрация нового пользователя")
 async def register_user(
     db: DBDependency,
     first_name: str = Form(...),
     second_name: str = Form(...),
-    gender: str = Form(...),
+    gender: Gender = Form(...),
     email: EmailStr = Form(...),
     password: str = Form(...),
     avatar: UploadFile = File(...),
+    longitude: float = Form(...),
+    latitude: float = Form(...)
 ):
     data = ClientRequestAdd(
         first_name=first_name,
         second_name=second_name,
         gender=gender,
         email=email,
-        password=password
+        password=password,
+        longitude=longitude,
+        latitude=latitude
     )
     client = await client_service.register_user(data, avatar, db)
     return {"status": "Регистрация успешна", "client_id": client.id}

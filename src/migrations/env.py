@@ -9,6 +9,7 @@ from alembic import context
 
 from src.db import Base
 from src.models.clients import ClientsModel
+from src.models.likes import LikesModel
 
 from src.config import settings
 

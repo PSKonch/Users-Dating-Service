@@ -18,9 +18,11 @@ app = FastAPI(docs=None, lifespan=lifespan)
 
 from src.routers.auth import router as auth_router
 from src.routers.profile import router as profile_router
+from src.routers.clients import router as clients_router
 
 app.include_router(auth_router)
 app.include_router(profile_router)
+app.include_router(clients_router)
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():

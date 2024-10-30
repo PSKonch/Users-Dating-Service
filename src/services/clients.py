@@ -5,6 +5,7 @@ from src.schemas.clients import ClientRequestAdd, ClientRequestLogin, ClientAdd,
 from src.utils.image_processing import apply_watermark
 from src.services.auth import AuthService
 from src.utils.dependencies.db import DBDependency
+from src.config import settings
 
 class ClientService:
     def __init__(self, auth_service: AuthService = AuthService()):
@@ -13,7 +14,7 @@ class ClientService:
 
     async def register_user(self, data: ClientRequestAdd, avatar_file, db: DBDependency):
         avatar_filename = f"{uuid4().hex}_{avatar_file.filename}"
-        avatar_path = os.path.join("path/to/avatars", avatar_filename)
+        avatar_path = os.path.join(settings.AVATAR_SAVE_PATH, avatar_filename)
 
         with open(avatar_path, "wb") as buffer:
             buffer.write(await avatar_file.read())
@@ -30,7 +31,9 @@ class ClientService:
             gender=data.gender,
             email=data.email,
             hashed_password=hashed_password,
-            avatar_path=watermarked_path
+            avatar_path=watermarked_path,
+            longitude=data.longitude,
+            latitude=data.latitude
         )
         client = await db.clients.add(new_client_data)
         await db.commit()

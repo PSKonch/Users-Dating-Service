@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 from src.repositories.mappers.base import DataMapper
 
-
 # Использование репозитория значительно помогает сократить кол-во кода в ручках
 class BaseRepository:
     model = None
