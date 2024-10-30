@@ -1,7 +1,7 @@
 from enum import Enum
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String
+from sqlalchemy import Float, String
 
 from src.db import Base
 
@@ -15,6 +15,8 @@ class ClientsModel(Base):
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
     avatar_path: Mapped[str]
+    latitude: Mapped[float] = mapped_column(Float, nullable=True)  # Широта
+    longitude: Mapped[float] = mapped_column(Float, nullable=True)  # Долгота
 
     # Связь с таблицей LikesModel
     likes_given = relationship("LikesModel", foreign_keys="[LikesModel.client_id]", back_populates="client")

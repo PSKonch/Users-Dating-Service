@@ -1,3 +1,4 @@
+from math import atan2, cos, radians, sin, sqrt
 from sqlalchemy import and_, func, select, update
 
 from src.models.likes import LikesModel
@@ -29,10 +30,14 @@ class ClientsRepository(BaseRepository):
         gender: str | None = None, 
         first_name: str | None = None, 
         second_name: str | None = None, 
+        current_latitude: float | None = None,
+        current_longitude: float | None = None,
+        max_distance: float | None = None
     ) -> list:
         
         query = select(self.model)
         
+        # Фильтры по полу, имени, фамилии
         if gender:
             query = query.filter(self.model.gender == gender)
         if first_name:
@@ -41,7 +46,27 @@ class ClientsRepository(BaseRepository):
             query = query.filter(func.lower(self.model.second_name).contains(second_name.strip().lower()))
 
         result = await self.session.execute(query)
-        return [self.mapper.map_to_domain_entity(client) for client in result.scalars().all()]
+        clients = result.scalars().all()
+
+        # Дополнительная фильтрация по расстоянию
+        if (current_latitude is not None) and (current_longitude is not None) and (max_distance is not None):
+            clients = [
+                client for client in clients 
+                if (client.latitude is not None) and (client.longitude is not None) and
+                self.calculate_distance(
+                    current_latitude, current_longitude, client.latitude, client.longitude
+                ) <= max_distance
+            ]
+
+        return [self.mapper.map_to_domain_entity(client) for client in clients]
+
+    def calculate_distance(self, lat1, lon1, lat2, lon2):
+        R = 6371  # Радиус Земли в километрах
+        dlat = radians(lat2 - lat1)
+        dlon = radians(lon2 - lon1)
+        a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return R * c
     
     async def get_user_email(self, user_id: int) -> str:
         stmt = select(ClientsModel.email).filter(ClientsModel.id == user_id)

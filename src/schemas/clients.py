@@ -9,6 +9,8 @@ class ClientAdd(BaseModel):
     email: EmailStr
     hashed_password: str
     avatar_path: str
+    longitude: float
+    latitude: float
 
 class ClientRequestAdd(BaseModel):
     first_name: str
@@ -16,6 +18,8 @@ class ClientRequestAdd(BaseModel):
     gender: str
     email: EmailStr
     password: str
+    longitude: float
+    latitude: float
 
 class Client(ClientAdd):
     id: int
@@ -29,3 +33,5 @@ class ClientRequestLogin(BaseModel):
 class ClientUpdateData(BaseModel):
     first_name: str | None = None
     second_name: str | None = None
+    longitude: float | None = None
+    latitude: float | None = None

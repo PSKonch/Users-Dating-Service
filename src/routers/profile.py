@@ -7,7 +7,7 @@ from src.services.clients import ClientService
 
 client_service = ClientService()
 
-router = APIRouter(prefix="/clients", tags=["Пользователи"])
+router = APIRouter(prefix="/clients", tags=["Профиль пользователя"])
 
 class Gender(str, Enum):
     MALE = "M"
@@ -22,13 +22,17 @@ async def register_user(
     email: EmailStr = Form(...),
     password: str = Form(...),
     avatar: UploadFile = File(...),
+    longitude: float = Form(...),
+    latitude: float = Form(...)
 ):
     data = ClientRequestAdd(
         first_name=first_name,
         second_name=second_name,
         gender=gender,
         email=email,
-        password=password
+        password=password,
+        longitude=longitude,
+        latitude=latitude
     )
     client = await client_service.register_user(data, avatar, db)
     return {"status": "Регистрация успешна", "client_id": client.id}

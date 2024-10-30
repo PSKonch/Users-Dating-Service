@@ -31,7 +31,9 @@ class ClientService:
             gender=data.gender,
             email=data.email,
             hashed_password=hashed_password,
-            avatar_path=watermarked_path
+            avatar_path=watermarked_path,
+            longitude=data.longitude,
+            latitude=data.latitude
         )
         client = await db.clients.add(new_client_data)
         await db.commit()
