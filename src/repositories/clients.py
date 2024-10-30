@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from src.repositories.base import BaseRepository
 from src.models.clients import ClientsModel
@@ -22,3 +22,22 @@ class ClientsRepository(BaseRepository):
         result = await self.session.execute(query)
         client = result.scalars().first()  # Получаем первый результат
         return client
+    
+    async def get_filtered_clients(
+        self, 
+        gender: str | None = None, 
+        first_name: str | None = None, 
+        second_name: str | None = None, 
+    ) -> list:
+        
+        query = select(self.model)
+        
+        if gender:
+            query = query.filter(self.model.gender == gender)
+        if first_name:
+            query = query.filter(func.lower(self.model.first_name).contains(first_name.strip().lower()))
+        if second_name:
+            query = query.filter(func.lower(self.model.second_name).contains(second_name.strip().lower()))
+
+        result = await self.session.execute(query)
+        return [self.mapper.map_to_domain_entity(client) for client in result.scalars().all()]
